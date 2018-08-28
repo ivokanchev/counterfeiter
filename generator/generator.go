@@ -405,6 +405,7 @@ func (gen CodeGenerator) stubbedMethodImplementation(method *ast.Field) *ast.Fun
 
 	bodyStatements = append(bodyStatements,
 		gen.callMutex(method, "Lock"),
+		gen.deferMutex(method, "Unlock"),
 	)
 
 	if methodType.Results.NumFields() > 0 {
@@ -472,7 +473,7 @@ func (gen CodeGenerator) stubbedMethodImplementation(method *ast.Field) *ast.Fun
 			},
 		},
 
-		gen.callMutex(method, "Unlock"),
+		//gen.callMutex(method, "Unlock"),
 	)
 
 	bodyStatements = append(bodyStatements, lastStatements...)
@@ -592,6 +593,8 @@ func (gen CodeGenerator) methodReturnsSetter(method *ast.Field) *ast.FuncDecl {
 		},
 		Recv: gen.receiverFieldList(),
 		Body: &ast.BlockStmt{List: []ast.Stmt{
+			gen.callMutex(method, "Lock"),
+			gen.deferMutex(method, "Unlock"),
 			&ast.AssignStmt{
 				Tok: token.ASSIGN,
 				Lhs: []ast.Expr{
