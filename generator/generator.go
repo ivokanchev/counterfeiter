@@ -653,6 +653,8 @@ func (gen CodeGenerator) methodReturnsOnCallSetter(method *ast.Field) *ast.FuncD
 		},
 		Recv: gen.receiverFieldList(),
 		Body: &ast.BlockStmt{List: []ast.Stmt{
+			gen.callMutex(method, "Lock"),
+			gen.deferMutex(method, "Unlock"),
 			&ast.AssignStmt{
 				Tok: token.ASSIGN,
 				Lhs: []ast.Expr{
